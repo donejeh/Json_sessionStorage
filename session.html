@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn Json</title>
+</head>
+
+<body>
+
+    <div id="output">
+        <ul id="taskList"></ul>
+    </div>
+
+    <form action="" id="myForm">
+        Task: <input type="text" name="task" placeholder="Add Task" >
+        <button type="submit" class="btn btn-primary">Add New Task</button>
+    </form>
+
+
+    <script type="text/javascript">
+        var dataJson = "";
+        var output = document.getElementById("output");
+        var taskList = document.getElementById("taskList");
+        var myform  = document.getElementById("myForm");
+
+        window.onload = function () {
+
+        if (sessionStorage['task'] != null) {
+        dataJson = JSON.parse(sessionStorage['task']);
+        } else {
+
+        var data =
+        '[{"info":"Cut Grass","status":false},{"info":"Goto Sleep","status":false},{ "info":"Clean Room","status":false},{ "info":"Make Dinner","status":false}]';
+        dataJson = JSON.parse(data);
+        }
+        buildCheckboxes(dataJson);
+        }
+
+        //getting informatiom from submit form
+        myform.addEventListener('submit',function(e){
+        e.preventDefault();
+        var tempValue = document.querySelector("input[name='task']").value;
+        addNewItem({'info':tempValue,'status':false});
+
+        });
+
+        //when add new element
+        function addNewItem(data){
+        addCheckboxes(data,dataJson.length);
+        dataJson.push(data)
+        myform.reset();
+        }
+
+
+        function addCheckboxes(data,key){
+        var li = document.createElement('li');
+        var checkbox = document.createElement('input');
+        var textInside = document.createTextNode(data.info);
+        var span  = document.createElement('span');
+        span.innerHTML = 'X';
+        span.onclick = remove;
+        checkbox.type ="checkbox";
+        checkbox.value = key;
+        checkbox.checked = data.status;
+        checkbox.setAttribute('onchange','updateJSON()')
+        li.appendChild(textInside);
+        li.appendChild(checkbox);
+        li.appendChild(span);
+        document.querySelector("#taskList").appendChild(li);
+        }
+
+        //check if x is click
+        function remove(event){
+            var index = this.previousElementSibling.value;
+            taskList.innerHTML = '';
+            dataJson.splice (index,1);
+            buildCheckboxes(dataJson);
+        }
+
+        //looping over dataJOSN
+        function buildCheckboxes(dataJson){
+        for (var key in dataJson) {
+        addCheckboxes(dataJson[key],key);
+
+        }
+
+        }
+
+        //check for onchange or click
+        function updateJSON() {
+        var key = event.target.value;
+        dataJson[key].status = event.target.checked;
+
+        sessionStorage['task']  = JSON.stringify(dataJson);
+        }
+    </script>
+
+</body>
+
+</html>
